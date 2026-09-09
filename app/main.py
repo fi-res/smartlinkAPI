@@ -1,3 +1,4 @@
+from asyncio import get_running_loop
 from contextlib import asynccontextmanager
 from datetime import timedelta
 from time import time
@@ -6,7 +7,7 @@ from typing import Callable
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
-from scheduler import Scheduler
+from scheduler.asyncio import Scheduler
 from uvicorn import run
 
 from app.api import UpstreamError
@@ -35,8 +36,11 @@ async def lifespan(app: FastAPI):
     storage.item_categories = get_item_categories()
     storage.olts = get_olts()
 
-    scheduler = Scheduler()
-    scheduler.cyclic(timedelta(hours=2), update_ont_indexes)
+    async def _update_indexes():
+        await get_running_loop().run_in_executor(None, update_ont_indexes)
+
+    app.state.scheduler = Scheduler()
+    app.state.scheduler.cyclic(timedelta(hours=2), _update_indexes)
 
     try:
         yield
