@@ -30,10 +30,11 @@ def get_task_ids(
     employee_id: int | None = None,
     completed_at_from: datetime | None = None,
     completed_at_to: datetime | None = None,
-    limit: int | None = None
+    limit: int | None = None,
+    sort: str = "date_finish"
 ) -> list[int]:
     l.info(
-        "get task ids customer_id=%s type=%s status=%s author_id=%s employee_id=%s completed_at_from=%s completed_at_to=%s limit=%s",
+        "get task ids customer_id=%s type=%s status=%s author_id=%s employee_id=%s completed_at_from=%s completed_at_to=%s limit=%s sort=%s",
         customer_id,
         type,
         status,
@@ -41,7 +42,8 @@ def get_task_ids(
         employee_id,
         completed_at_from,
         completed_at_to,
-        limit
+        limit,
+        sort
     )
     tasks = api_call(
         "task",
@@ -54,11 +56,11 @@ def get_task_ids(
         date_finish_from=completed_at_from,
         date_finish_to=completed_at_to,
         limit=limit,
-        order_by="date_finish"
+        order_by=sort
     )["list"].split(",")
     if not tasks:
         return []
-    return [int(task) for task in tasks if task][::-1]
+    return [int(task) for task in tasks if task]
 
 
 def get_tasks(*ids: int, employee_resolver: Callable[[int], str | None], division_resolver: Callable[[int], str | None]) -> list[Task]:

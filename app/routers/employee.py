@@ -1,3 +1,5 @@
+from typing import Literal
+
 from fastapi import APIRouter, Depends, Response
 from fastapi.responses import JSONResponse
 
@@ -41,6 +43,8 @@ def api_get_employee_me_tasks(
     status: str = "",
     type: str = "",
     limit: int | None = None,
+    sort: Literal["completed_at", "planned_to", "created_at", "updated_at"] = "completed_at",
+    descending: bool = True,
     get_customers: bool = True,
     employee: Employee = Depends(employee_dependency),
     db: Session = Depends(db_dependency)
@@ -48,11 +52,18 @@ def api_get_employee_me_tasks(
     types = list(map(int, type.split(","))) if type else None
     statuses = list(map(int, status.split(","))) if status else None
 
-    ids = get_task_ids(type=types, status=statuses, employee_id=employee.id, limit=limit)
+    ids = get_task_ids(
+        type=types,
+        status=statuses,
+        employee_id=employee.id,
+        limit=limit,
+        sort={"completed_at": "date_finish", "planned_to": "date_do", "created_at": "date_add", "updated_at": "date_change"}[sort]
+    )
 
     if not ids:
         return []
-
+    if descending:
+        ids = ids[::-1]
     if len(ids) > 500:
         return JSONResponse({"detail": "too wide query"}, 400)
 

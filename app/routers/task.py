@@ -143,7 +143,25 @@ def api_post_task_register_ont(id: int, employee: Employee = Depends(employee_de
 
 
 @router.post("/{id}/complete", status_code=204)
-def api_post_task_complete(id: int, employee: Employee = Depends(employee_dependency)):
+def api_post_task_complete(
+    id: int,
+    discount: str = "Стандарт (0%)",
+    extra_services: str = "",
+    solve: str | None = None,
+    cost: int | None = None,
+    comment: str | None = None,
+    employee: Employee = Depends(employee_dependency)
+):
+    if solve:
+        set_adddata(id, AddataObjectType.task, 36, solve)
+    if cost:
+        set_adddata(id, AddataObjectType.task, 26, cost)
+    if extra_services:
+        set_adddata(id, AddataObjectType.task, 83, extra_services.split(","))
+    if comment:
+        set_adddata(id, AddataObjectType.task, 40, comment)
+    if discount:
+        set_adddata(id, AddataObjectType.task, 27, discount)
     change_status(id, 12, employee.id)
 
 

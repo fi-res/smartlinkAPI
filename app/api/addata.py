@@ -7,7 +7,7 @@ from app.utils.logger import get_logger
 l = get_logger("api.addata")
 
 
-def set_adddata(id: int, object_type: AddataObjectType, field_id: int, value: str | int | datetime | list | bool):
+def set_adddata(id: int, object_type: AddataObjectType, field_id: int, value: str | int | datetime | list[str] | bool):
     if isinstance(value, list):
         value = ",".join(value)
     if isinstance(value, datetime):
