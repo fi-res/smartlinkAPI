@@ -65,6 +65,7 @@ _connect_type = Annotated[str | None, addata(27)]
 _tariff = Annotated[str | None, addata(25)]
 _extra_services = Annotated[list[str] | None, BeforeValidator(str2list_validator), addata(83)]
 _catv = Annotated[int | None, addata(69)]
+_coordinates = Annotated[list[float] | None, BeforeValidator(coordinates_validator), addata(7)]
 addata_default = Field(None, validate_default=True)
 
 
@@ -82,7 +83,7 @@ class Task(BaseModel):
     completed_at: str4datetime | None = Field(None, validation_alias="date")
 
     address: TaskAddress
-    coordinates: list[float] | None = Field(None, validate_default=True)
+    coordinates: _coordinates = addata_default
 
     description: str | None = None
     short_description: str | None = Field(None, validation_alias="description_short")
@@ -139,9 +140,3 @@ class Task(BaseModel):
     def validate_dates(cls, date: dict, info: ValidationInfo):
         assert info.field_name
         return date.get({"created_at": "create", "planned_to": "todo", "updated_at": "update", "completed_at": "complete"}[info.field_name])
-
-    @field_validator("coordinates", mode="before")
-    @classmethod
-    def validate_coordinates(cls, _: None, info: ValidationInfo):
-        coords = addata(7).func(None, info)  # ty: ignore
-        return coordinates_validator(coords)

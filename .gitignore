@@ -4,3 +4,4 @@ database.db
 .env
 *.egg-info
 smartmount.apk
+platform.json
