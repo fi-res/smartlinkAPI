@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+from re import search
 from time import time
 from typing import Literal, overload
 
@@ -111,7 +112,7 @@ def custom_api_call(url: str, *, json: bool = True, **params):
     l.debug("> %s %s", url, params)
     res = session.get(BASE_URL + url, params=params, timeout=30, verify=False)
 
-    if 'url: "/body/login",' in res.text:
+    if "<title>Вход - UserSide</title>" in res.text:
         l.warning("custom api call failed: re-auth")
         auth_us()
         res = session.get(BASE_URL + url, params=params, timeout=30, verify=False)
@@ -135,6 +136,15 @@ def auth_us(page: str | None = None):
     global authed
 
     l.info("auth userside")
-    csrf = (page or session.get(BASE_URL, verify=False).text).split("_csrf: '")[-1].split("',")[0]
-    session.post(f"{BASE_URL}body/login", params={"username": US_LOGIN, "password": US_PASSWORD, "_csrf": csrf}, verify=False)
+    html = page or session.get(BASE_URL, verify=False).text
+    match = search(r"authenticateERP\(&quot;_csrf&quot;,\s*&quot;(.+==)&quot;, &quot;", html)
+    if not match:
+        raise UpstreamError("csrf token not found on login page", 502)
+    l.debug("auth crsf: %s", match.group(1))
+    res = session.post(
+        f"{BASE_URL}js_entrypoint?route=r_body_login",
+        data={"a1": US_LOGIN, "a2": US_PASSWORD, "a3": "", "is_change_password": "0", "_csrf": match.group(1)},
+        verify=False
+    )
+    l.info("auth result: %s", res.text)
     authed = True

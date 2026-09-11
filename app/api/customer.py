@@ -31,8 +31,10 @@ def search_customers(query: str) -> list[CustomerSearch]:
     for tag in BeautifulSoup(res["data"], "html.parser").find_all("a"):
         if "/customer/" not in tag["href"]:
             continue
-        match = fullmatch(r'<a href="/customer/(\d+)"> <i class="erp-icon far fa-bars"> </i> (\d+) · (.+) - (.+)</a>', tag.prettify().replace("\n", ""))
-        assert match, f"match failed ({tag.prettify().replace('\n', '')})"
+        match = fullmatch(r'<a href="/customer/(\d+)"> <span class="erp_top_search_marker"> </span> (\d+) · (.+) - (.+)</a>', tag.prettify().replace("\n", ""))
+        if not match:
+            l.warning("match failed (%s)", {tag.prettify().replace("\n", "")})
+            continue
 
         data = {"id": match.group(1), "agreement": match.group(2), "full_name": match.group(3), "login": match.group(4)}
         customers.append(CustomerSearch.model_validate(data, context=data))
