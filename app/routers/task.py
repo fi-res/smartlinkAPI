@@ -134,7 +134,11 @@ def api_post_task_get_agreement(id: int, employee: Employee = Depends(employee_d
 
 
 @router.post("/{id}/add-ont", status_code=204)
-def api_post_task_add_ont(id: int, employee: Employee = Depends(employee_dependency)):
+def api_post_task_add_ont(id: int, ont_id: int, employee: Employee = Depends(employee_dependency)):
+    if employee.inventory_id is None:
+        return JSONResponse({"detail": "employee has not storage"}, 404)
+
+    transfer_inventory(ont_id, f"21203{id:07}", employee.id)
     change_status(id, 17, employee.id)
 
 
