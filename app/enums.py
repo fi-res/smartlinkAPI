@@ -129,9 +129,12 @@ class ItemType(MultiValueEnum):
 
 
 class TaskType(IntEnum):
+    connect_multiflat = 28
+    connect_private = 26
     repair = 37
     repair_ravshan = 53
     repair_magistral = 38
+    repair_mitris = 64
     inactive = 46
     uninstall = 60
     magistral = 48

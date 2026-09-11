@@ -96,21 +96,25 @@ def add_task(
     customer_id: int | None = None,
     description: str | None = None,
     divisions: list[int] = [],
+    employees: list[int] = [],
     reason: str | None = None,
     appeal_phone: int | None = None,
-    appeal_type: str | None = None
+    appeal_type: str | None = None,
+    tariff: str | None = None
 ) -> int:
     l.info(
-        "add task type=%s author_id=%s address_id=%s customer_id=%s description=%s divisions=%s reason=%s appeal_phone=%s appeal_type=%s",
+        "add task type=%s author_id=%s address_id=%s customer_id=%s description=%s divisions=%s employees=%s reason=%s appeal_phone=%s appeal_type=%s tariff=%s",
         type.name,
         author_id,
         address_id,
         customer_id,
         description,
         divisions,
+        employees,
         reason,
         appeal_phone,
-        appeal_type
+        appeal_type,
+        tariff
     )
     return api_call(
         "task",
@@ -119,14 +123,16 @@ def add_task(
         work_typer=type,
         work_datedo=datetime.now(),
         deadline_hour=72,
-        division_id=",".join(map(str, divisions)),
+        division_id=",".join(map(str, divisions)) if divisions else None,
+        employee_id=",".join(map(str, employees)) if employees else None,
         author_employee_id=author_id,
         address_id=address_id,
         customer_id=customer_id,
         opis=description,
         dopf_30=reason,
         dopf_29=appeal_phone,
-        dopf_28=appeal_type
+        dopf_28=appeal_type,
+        dopf_25=tariff
     )["Id"]
 
 

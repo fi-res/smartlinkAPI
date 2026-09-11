@@ -187,7 +187,9 @@ def api_post_task(
     appeal_phone: int | None = None,
     appeal_type: str | None = None,
     description: str | None = None,
+    tariff: str | None = None,
     divisions: str = "",
+    self_assign: bool = False,
     employee: Employee = Depends(employee_dependency)
 ):
     list_divisions = list(map(int, divisions.split(","))) if divisions else []
@@ -203,13 +205,30 @@ def api_post_task(
     if reason is None and type in (TaskType.repair, TaskType.inactive, TaskType.repair_ravshan, TaskType.repair_magistral, TaskType.magistral):
         return JSONResponse({"detail": "reason is required"}, 422)
 
-    if appeal_phone is None and type in (TaskType.repair, TaskType.inactive, TaskType.repair_ravshan, TaskType.uninstall, TaskType.magistral):
-        return JSONResponse({"detail": "appeal phone is required"}, 422)
+    # if appeal_phone is None and type in (TaskType.repair, TaskType.inactive, TaskType.repair_ravshan, TaskType.uninstall, TaskType.magistral):
+    #     return JSONResponse({"detail": "appeal phone is required"}, 422)
 
-    if appeal_type is None and type in (TaskType.repair, TaskType.inactive, TaskType.repair_ravshan, TaskType.repair_magistral):
-        return JSONResponse({"detail": "appeal type is required"}, 422)
+    # if appeal_type is None and type in (TaskType.repair, TaskType.inactive, TaskType.repair_ravshan, TaskType.repair_magistral):
+    #     return JSONResponse({"detail": "appeal type is required"}, 422)
 
-    return {"id": add_task(employee.id, type, address_id, customer_id, description, list_divisions, reason, appeal_phone, appeal_type)}
+    if tariff is None and type in (TaskType.connect_multiflat, TaskType.connect_private):
+        return JSONResponse({"detail": "tariff is required"}, 422)
+
+    return {
+        "id": add_task(
+            employee.id,
+            type,
+            address_id,
+            customer_id,
+            description,
+            list_divisions,
+            [employee.id] if self_assign else [],
+            reason,
+            appeal_phone,
+            appeal_type,
+            tariff
+        )
+    }
 
 
 @router.get("")
