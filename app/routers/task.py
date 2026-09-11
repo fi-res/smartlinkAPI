@@ -262,3 +262,26 @@ def api_get_tasks(
             if task.customer_id:
                 task.customer = api_get_customer(task.customer_id)
     return tasks
+
+
+@router.post("/connections")
+def api_post_connections(
+    name: str,
+    address: str,
+    group: int,
+    phone: int,
+    phone2: int,
+    type: TaskType,
+    tariff: str,
+    description: str | None = None,
+    self_assign: bool = False,
+    employee: Employee = Depends(employee_dependency),
+    db: Session = Depends(db_dependency)
+):
+    customer_id = api_post_customer(name, address, group, phone, phone2)
+    if "id" not in customer_id:
+        return customer_id  # error
+    task_id = api_post_task(type, customer_id=customer_id["id"], description=description, tariff=tariff, self_assign=self_assign, employee=employee)
+    if "id" not in task_id:
+        return task_id
+    return api_get_task(task_id["id"], get_customer=True, db=db)
