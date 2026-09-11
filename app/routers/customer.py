@@ -2,13 +2,14 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
+from app.api.addata import set_adddata
 from app.api.attach import get_customer_attachs
-from app.api.customer import get_customer, rewrite_mac, rewrite_sn, search_customers, update_customer
+from app.api.customer import add_customer, edit_customer, get_customer, rewrite_mac, rewrite_sn, search_customers, update_customer
 from app.api.device import get_customer_olt, get_ont_olt
 from app.api.inventory import get_customer_items
 from app.api.task import get_task_ids, get_tasks
 from app.db.crud import get_division_name, get_employee_name
-from app.enums import CustomerStatus
+from app.enums import AddataObjectType, CustomerStatus
 from app.utils.calc_diconnect import calc_disconnect
 from app.utils.dependencies import db_dependency
 
@@ -75,3 +76,12 @@ def api_post_customer_rewrite_mac(id: int, agreement: str):
     res = rewrite_mac(id, agreement)
     if res:
         return JSONResponse({"detail": res}, 400)
+
+
+@router.post("", status_code=201)
+def api_post_customer(name: str, address: str, group: int, phone: int, phone2: int):
+    id = add_customer(name)
+    edit_customer(id, group=group, phone=phone, phone2=phone2)
+    set_adddata(id, AddataObjectType.customer, 10, "Стандартное")  # connect type
+    set_adddata(id, AddataObjectType.customer, 42, address)
+    return {"id": id}

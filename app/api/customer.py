@@ -98,6 +98,16 @@ def rewrite_mac(id: int, agreement: str) -> str | None:
         return res["msg"]
 
 
+def add_customer(name: str) -> int:
+    l.info("add customer name=%s", name)
+    return api_call("customer", "add", post=True, is_potential=True, fio=name)["Id"]
+
+
+def edit_customer(id: int, manager_id: int | None = None, group: int | None = None, phone: int | None = None, phone2: int | None = None) -> None:
+    l.info("edit customer id=%s manager_id=%s group=%s phone=%s phone2=%s", id, manager_id, group, phone, phone2)
+    api_call("customer", "edit", post=True, id=id, group_id=group, phone0=phone, phone1=phone2)
+
+
 def update_customer(id: int, phones: list[str]) -> None:
     api_call(
         "customer",

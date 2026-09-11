@@ -17,6 +17,7 @@ from app.db.crud import get_division_name, get_employee_name
 from app.db.models import Employee
 from app.enums import AddataObjectType, AttachObjectType, TaskType
 from app.models.item import Item
+from app.routers.customer import api_post_customer
 from app.utils.dependencies import db_dependency, employee_dependency
 from app.utils.items import fold_categories
 
