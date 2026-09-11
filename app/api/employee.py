@@ -28,10 +28,15 @@ def get_employee(id: int) -> Employee | None:
 
 
 def get_employees() -> list[Employee]:
-    l.info("get employee")
+    l.info("get employees")
     employees = api_call("employee", "get_data")["data"]
 
     return [Employee.model_validate(employee, context=employee) for employee in employees.values()]
+
+
+def edit_employee(id: int, gps_imei: str):
+    l.info("edit employee id=%s gps_imei=%s", id, gps_imei)
+    api_call("employee", "edit", post=True, id=id, gps_id=gps_imei)
 
 
 def check_creds(username: str, password: str) -> bool:
@@ -40,7 +45,7 @@ def check_creds(username: str, password: str) -> bool:
 
 
 def get_division(id: int) -> Division | None:
-    l.debug("get division id=%s", id)
+    l.info("get division id=%s", id)
     division = api_call("employee", "get_division", id=id).get("data")
 
     if not division:
@@ -52,7 +57,7 @@ def get_division(id: int) -> Division | None:
 
 
 def get_divisions() -> list[Division]:
-    l.debug("get divisions")
+    l.info("get divisions")
     divisions = api_call("employee", "get_division")["data"]
 
     return [Division.model_validate(division, context=division) for division in divisions.values()]

@@ -60,7 +60,7 @@ def api_call(
         elif v is not None:
             _params[k] = v
 
-    l.debug("> %s.%s %s", cat, action, {k: v if k != "pass" or not isinstance(v, str) else "*" * len(v) for k, v in _params.items()})  # hide password
+    l.debug("> %s%s.%s %s", "post " if post else "", cat, action, {k: v if k != "pass" or not isinstance(v, str) else "*" * len(v) for k, v in _params.items()})
 
     start = time()
     if post:

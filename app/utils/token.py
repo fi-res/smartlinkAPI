@@ -1,4 +1,4 @@
-from random import choice
+from random import choice, randint
 from string import ascii_letters, digits
 
 
@@ -10,3 +10,7 @@ def mask_token(token: str):
     if len(token) > 10:
         return token[:7] + "***" + token[-7:]
     return "*" * len(token)
+
+
+def gen_imei():
+    return f"smartlink-gps-{randint(1_000_000, 9_999_999)}"

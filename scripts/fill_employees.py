@@ -15,8 +15,18 @@ for employee in get_employees():
         db_employee.username = employee.username
         db_employee.role = employee.role
         db_employee.inventory_id = inventories.get(employee.name)
+        db_employee.gps_imei = employee.gps_imei
 
     else:
-        db.add(Employee(id=employee.id, name=employee.name, username=employee.username, role=employee.role, inventory_id=inventories.get(employee.name)))
+        db.add(
+            Employee(
+                id=employee.id,
+                name=employee.name,
+                username=employee.username,
+                role=employee.role,
+                inventory_id=inventories.get(employee.name),
+                gps_imei=employee.gps_imei
+            )
+        )
 
 db.commit()

@@ -32,6 +32,7 @@ class Employee(EmployeeName):
     access: list[str] = Field([], validate_default=True)
 
     inventory_id: int | None = None
+    gps_imei: str | None = None
 
     @field_validator("inventory_id", mode="after")
     @classmethod

@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, Response
 from fastapi.responses import JSONResponse
 
 from app.api.customer import get_customer
-from app.api.employee import check_creds, get_employee, get_employee_id
+from app.api.employee import check_creds, edit_employee, get_employee, get_employee_id
+from app.api.gps import set_position
 from app.api.inventory import get_employee_items
 from app.api.task import get_task_ids, get_tasks
 from app.db import Session
@@ -81,6 +82,18 @@ def api_get_employee_me_items(employee: Employee = Depends(employee_dependency))
         return JSONResponse({"detail": "employee has not storage"}, 404)
 
     return fold_categories(get_employee_items(employee.inventory_id))
+
+
+@router.post("/me/position", status_code=204)
+def api_post_employee_me_position(
+    lat: float, lon: float, speed: float | None = None, db: Session = Depends(db_dependency), employee: Employee = Depends(employee_dependency)
+):
+    if employee.gps_imei is None:
+        employee.gps_imei = f"smartlinkapi-gps-{employee.id}"
+        edit_employee(employee.id, gps_imei=employee.gps_imei)
+        db.commit()
+
+    set_position(employee.gps_imei, lat, lon, (speed * 3.6) if speed else None)
 
 
 @router.get("/divisions")
