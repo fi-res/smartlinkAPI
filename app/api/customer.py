@@ -64,7 +64,16 @@ def get_building_customers(id: int) -> list[CustomerBuilding]:
 def rewrite_sn(id: int, agreement: str, sn: str) -> str | None:
     l.info("rewrite sn id=%s agreement=%s sn=%s", id, agreement, sn)
     res = api_call(
-        "customer", "mark_add", timeout=360, nogi="bogi", mark_id=1, customer_id=id, _command="attach_onu", _onu_serial=sn, _contract_number=agreement
+        "customer",
+        "mark_add",
+        timeout=360,
+        post=True,
+        nogi="bogi",
+        mark_id=1,
+        customer_id=id,
+        _command="attach_onu",
+        _onu_serial=sn,
+        _contract_number=agreement
     )
     if int(res["result"]):
         l.error("fail to rewrite sn: %s", res["msg"])
@@ -74,7 +83,15 @@ def rewrite_sn(id: int, agreement: str, sn: str) -> str | None:
 def rewrite_mac(id: int, agreement: str) -> str | None:
     l.info("rewrite mac id=%s agreement=%s", id, agreement)
     res = api_call(
-        "customer", "mark_add", nogi="bogi", mark_id=1, customer_id=id, _command="renew_mac_address", _userside_customer_id=id, _contract_number=agreement
+        "customer",
+        "mark_add",
+        nogi="bogi",
+        post=True,
+        mark_id=1,
+        customer_id=id,
+        _command="renew_mac_address",
+        _userside_customer_id=id,
+        _contract_number=agreement
     )
     if int(res["result"]):
         l.error("fail to rewrite mac: %s", res["msg"])
