@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Callable
 
 from app.api import api_call
@@ -58,7 +58,7 @@ def get_task_ids(
         limit=limit,
         order_by=sort
     )["list"].split(",")
-    if not tasks:
+    if not tasks or not tasks[0]:
         return []
     return [int(task) for task in tasks if task]
 
@@ -121,7 +121,7 @@ def add_task(
         "add",
         post=True,
         work_typer=type,
-        work_datedo=datetime.now(),
+        work_datedo=datetime.now() if type in (37, 53, 38, 64, 46, 60) else (datetime.now() + timedelta(days=3)),
         deadline_hour=72,
         division_id=",".join(map(str, divisions)) if divisions else None,
         employee_id=",".join(map(str, employees)) if employees else None,
