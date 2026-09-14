@@ -56,7 +56,7 @@ def api_call(
         elif isinstance(v, Enum):
             _params[k] = v.value
         elif isinstance(v, datetime):
-            _params[k] = v.isoformat()
+            _params[k] = v.replace(tzinfo=None).isoformat(" ", "seconds")
         elif v is not None:
             _params[k] = v
 

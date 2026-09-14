@@ -31,18 +31,24 @@ def get_task_ids(
     division_ids: list[int] | None = None,
     completed_at_from: datetime | None = None,
     completed_at_to: datetime | None = None,
+    planned_to_from: datetime | None = None,
+    planned_to_to: datetime | None = None,
     limit: int | None = None,
     sort: str = "date_finish"
 ) -> list[int]:
     l.info(
-        "get task ids customer_id=%s type=%s status=%s author_id=%s employee_id=%s completed_at_from=%s completed_at_to=%s limit=%s sort=%s",
+        "get task ids customer=%s type=%s status=%s author=%s employees=%s divisions=%s completed_at_from=%s completed_at_to=%s planned_to_from=%s planned_to_to=%s "
+        "limit=%s sort=%s",
         customer_id,
         type,
         status,
         author_id,
-        employee_id,
+        employee_ids,
+        division_ids,
         completed_at_from,
         completed_at_to,
+        planned_to_from,
+        planned_to_to,
         limit,
         sort
     )
@@ -57,6 +63,8 @@ def get_task_ids(
         division_id_with_staff=",".join(map(str, division_ids)) if division_ids else None,
         date_finish_from=completed_at_from,
         date_finish_to=completed_at_to,
+        date_do_from=planned_to_from,
+        date_do_to=planned_to_to,
         limit=limit,
         order_by=sort
     )["list"].split(",")
