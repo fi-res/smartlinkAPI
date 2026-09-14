@@ -10,7 +10,7 @@ from app.api.inventory import get_employee_items
 from app.api.task import get_task_ids, get_tasks
 from app.db import Session
 from app.db.crud import get_division_name, get_divisions, get_employee_name, set_employee
-from app.models.employee import Employee
+from app.db.models import Employee
 from app.utils.dependencies import db_dependency, employee_dependency
 from app.utils.items import fold_categories
 from app.utils.token import gen_token
@@ -34,13 +34,13 @@ def api_post_login(response: Response, username: str, password: str, db: Session
     return {"id": id}
 
 
-@router.get("/me", response_model=Employee)
+@router.get("/me")
 def api_get_employee_me(employee: Employee = Depends(employee_dependency)):
     return api_get_employee(int(employee.id))
 
 
 @router.get("/me/tasks")
-def api_get_employee_me_tasks(
+def api_get_employee_my_tasks(
     status: str = "",
     type: str = "",
     limit: int | None = None,
@@ -56,7 +56,8 @@ def api_get_employee_me_tasks(
     ids = get_task_ids(
         type=types,
         status=statuses,
-        employee_id=employee.id,
+        employee_ids=[employee.id] if employee.division_id is None else None,
+        division_ids=[employee.division_id] if employee.division_id else None,
         limit=limit,
         sort={"completed_at": "date_finish", "planned_to": "date_do", "created_at": "date_add", "updated_at": "date_change"}[sort]
     )
@@ -77,7 +78,7 @@ def api_get_employee_me_tasks(
 
 
 @router.get("/me/items")
-def api_get_employee_me_items(employee: Employee = Depends(employee_dependency)):
+def api_get_employee_my_items(employee: Employee = Depends(employee_dependency)):
     if employee.inventory_id is None:
         return JSONResponse({"detail": "employee has not storage"}, 404)
 
@@ -90,6 +91,7 @@ def api_post_employee_me_position(
 ):
     if employee.gps_imei is None:
         employee.gps_imei = f"smartlinkapi-gps-{employee.id}"
+        assert employee.gps_imei
         edit_employee(employee.id, gps_imei=employee.gps_imei)
         db.commit()
 
@@ -101,7 +103,7 @@ def api_get_divisions(db: Session = Depends(db_dependency)):
     return get_divisions(db)
 
 
-@router.get("/{id}", response_model=Employee)
+@router.get("/{id}")
 def api_get_employee(id: int):
     employee = get_employee(id)
     if employee is None:

@@ -16,6 +16,8 @@ for employee in get_employees():
         db_employee.role = employee.role
         db_employee.inventory_id = inventories.get(employee.name)
         db_employee.gps_imei = employee.gps_imei
+        if employee.divisions:
+            db_employee.division_id = employee.divisions[0].id
 
     else:
         db.add(
@@ -25,7 +27,8 @@ for employee in get_employees():
                 username=employee.username,
                 role=employee.role,
                 inventory_id=inventories.get(employee.name),
-                gps_imei=employee.gps_imei
+                gps_imei=employee.gps_imei,
+                division_id=employee.divisions[0].id if employee.divisions else None
             )
         )
 
