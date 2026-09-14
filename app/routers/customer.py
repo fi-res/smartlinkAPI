@@ -9,9 +9,10 @@ from app.api.device import get_customer_olt, get_ont_olt
 from app.api.inventory import get_customer_items
 from app.api.task import get_task_ids, get_tasks
 from app.db.crud import get_division_name, get_employee_name
+from app.db.models import Employee
 from app.enums import AddataObjectType, CustomerStatus
 from app.utils.calc_diconnect import calc_disconnect
-from app.utils.dependencies import db_dependency
+from app.utils.dependencies import db_dependency, employee_dependency
 
 router = APIRouter(prefix="/customers")
 
@@ -35,6 +36,16 @@ def api_get_customer(id: int, full: bool = True):
             customer.disconnect_at = calc_disconnect(customer.tariffs, customer.balance, customer.connected_at)
 
     return customer
+
+
+@router.put("/{id}/manager")
+def api_put_customer_manager(id: int, employee: Employee = Depends(employee_dependency)):
+    edit_customer(id, manager_id=employee.id)
+
+
+@router.put("/{id}/coordinates")
+def api_put_customer_coordinates(id: int, lat: float, lon: float):
+    set_adddata(id, AddataObjectType.customer, 7, f"{lat},{lon}")
 
 
 @router.get("/{id}/tasks")

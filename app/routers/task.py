@@ -17,7 +17,7 @@ from app.db.crud import get_division_name, get_employee_name
 from app.db.models import Employee
 from app.enums import AddataObjectType, AttachObjectType, TaskType
 from app.models.item import Item
-from app.routers.customer import api_post_customer
+from app.routers.customer import api_post_customer, api_put_customer_coordinates
 from app.utils.dependencies import db_dependency, employee_dependency
 from app.utils.items import fold_categories
 
@@ -143,8 +143,10 @@ def api_post_task_add_ont(id: int, ont_id: int, employee: Employee = Depends(emp
 
 
 @router.post("/{id}/register-ont", status_code=204)
-def api_post_task_register_ont(id: int, employee: Employee = Depends(employee_dependency)):
+def api_post_task_register_ont(id: int, lat: float | None = None, lon: float | None = None, employee: Employee = Depends(employee_dependency)):
     change_status(id, 19, employee.id)
+    if lat and lon:
+        set_adddata(id, AddataObjectType.task, 7, f"{lat},{lon}")
 
 
 @router.post("/{id}/complete", status_code=204)
@@ -171,8 +173,19 @@ def api_post_task_complete(
 
 
 @router.post("/{id}/start", status_code=204)
-def api_post_task_start(id: int, employee: Employee = Depends(employee_dependency)):
+def api_post_task_start(
+    id: int, customer_id: int | None = None, lat: float | None = None, lon: float | None = None, employee: Employee = Depends(employee_dependency)
+):
     change_status(id, 3, employee.id)
+    if lat and lon:
+        api_put_task_coordinates(id, lat, lon)
+        if customer_id:
+            api_put_customer_coordinates(customer_id, lat, lon)
+
+
+@router.put("/{id}/coordinates")
+def api_put_task_coordinates(id: int, lat: float, lon: float):
+    set_adddata(id, AddataObjectType.task, 7, f"{lat},{lon}")
 
 
 @router.get("/attachs")
