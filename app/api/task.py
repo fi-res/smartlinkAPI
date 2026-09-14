@@ -75,7 +75,9 @@ def get_task_ids(
 
 def get_tasks(*ids: int, employee_resolver: Callable[[int], str | None], division_resolver: Callable[[int], str | None]) -> list[Task]:
     l.info("get tasks ids=%s", ids)
-    tasks = api_call("task", "show", id=",".join(map(str, ids)), timeout=60).get("data")
+    tasks = api_call(
+        "task", "show", id=",".join(map(str, ids)), is_without_views_history=True, is_without_task_statuses_history=True, is_without_history=True, timeout=60
+    ).get("data")
 
     if tasks is None:
         return []
