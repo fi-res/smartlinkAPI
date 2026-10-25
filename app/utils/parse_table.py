@@ -7,7 +7,7 @@ from html_to_json.convert_html_tables import convert_tables
 def parse(html: str, add_ids: bool = False) -> list[dict]:
     soup = BeautifulSoup(html, "html.parser")
 
-    table = soup.find("table", attrs={"id": "tableListData"})
+    table = soup.find("table", attrs={"class": "erp-table__table"})
     assert table
 
     heading = table.find("tr")

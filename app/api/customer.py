@@ -57,7 +57,8 @@ def search_customers(query: str) -> list[CustomerSearch]:
 
 def get_building_customers(id: int) -> list[CustomerBuilding]:
     l.info("get building customers id=%s", id)
-    customers = custom_api_call("building/tab_body", json=False, section="customer", id=id)
+    customers = custom_api_call(f"building/{id}", json=False)
+    # customers = custom_api_call(f"building/{id}/tab", json=False, section="customers")
 
     if f"Building #{id} not found" in customers:
         l.error("building not found")
